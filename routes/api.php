@@ -41,7 +41,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/courses', [CourseController::class, 'store']);
     Route::put('/courses/{course}', [CourseController::class, 'update']);
     Route::delete('/courses/{course}', [CourseController::class, 'destroy']);
+
+    // Trainings
+    Route::apiResource('trainings', App\Http\Controllers\TrainingController::class);
+
+    // Directorates
+    Route::apiResource('directorates', App\Http\Controllers\DirectorateController::class);
+
+    // Modalities
+    Route::apiResource('modalities', App\Http\Controllers\ModalityController::class);
 });
 
-Route::post('/register', [App\Http\Controllers\AuthController::class, 'register']);
-Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);

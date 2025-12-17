@@ -9,6 +9,9 @@ import DashboardStats from '../components/DashboardStats.vue';
 import SystemLogs from '../components/SystemLogs.vue';
 import Reports from '../components/Reports.vue';
 import Home from '../components/Home.vue';
+import AdminTrainings from '../components/AdminTrainings.vue';
+import AdminDirectorates from '../components/AdminDirectorates.vue';
+import AdminModalities from '../components/AdminModalities.vue';
 
 const routes = [
     {
@@ -72,6 +75,21 @@ const routes = [
                 path: 'reports',
                 name: 'admin-reports',
                 component: Reports
+            },
+            {
+                path: 'trainings',
+                name: 'admin-trainings',
+                component: AdminTrainings
+            },
+            {
+                path: 'directorates',
+                name: 'admin-directorates',
+                component: AdminDirectorates
+            },
+            {
+                path: 'modalities',
+                name: 'admin-modalities',
+                component: AdminModalities
             }
         ]
     },

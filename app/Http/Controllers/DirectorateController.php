@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Directorate;
+
+class DirectorateController extends Controller
+{
+    public function index()
+    {
+        return Directorate::all();
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'description' => 'nullable|string',
+            'acronym' => 'required|string|max:10|unique:directorates',
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $directorate = Directorate::create($validated);
+        return response()->json($directorate, 201);
+    }
+
+    public function show(Directorate $directorate)
+    {
+        return $directorate;
+    }
+
+    public function update(Request $request, Directorate $directorate)
+    {
+        $validated = $request->validate([
+            'description' => 'nullable|string',
+            'acronym' => 'required|string|max:10|unique:directorates,acronym,' . $directorate->id,
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $directorate->update($validated);
+        return response()->json($directorate);
+    }
+
+    public function destroy(Directorate $directorate)
+    {
+        $directorate->delete();
+        return response()->json(null, 204);
+    }
+}
