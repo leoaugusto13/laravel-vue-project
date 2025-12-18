@@ -8,6 +8,28 @@
       </button>
     </div>
 
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+        </div>
+        <div class="stat-info">
+          <h3>Total</h3>
+          <p class="value">{{ trainings.length }}</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div class="stat-info">
+          <h3>Ativas</h3>
+          <p class="value">{{ activeTrainings }}</p>
+        </div>
+      </div>
+    </div>
+
     <div class="card">
       <div class="table-container">
         <table class="data-table">
@@ -115,10 +137,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, computed, reactive } from 'vue';
 import axios from 'axios';
 
 const trainings = ref([]);
+const activeTrainings = computed(() => trainings.value.filter(t => t.status === 'active').length);
 const directorates = ref([]);
 const showModal = ref(false);
 const isEditing = ref(false);
@@ -146,7 +169,7 @@ const loadDirectorates = async () => {
 
 const loadTrainings = async () => {
   try {
-    const response = await axios.get('/api/trainings', {
+    const response = await axios.get('/api/admin/trainings', {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     trainings.value = response.data;
@@ -185,9 +208,9 @@ const saveTraining = async () => {
   try {
     const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
     if (isEditing.value) {
-      await axios.put(`/api/trainings/${currentId.value}`, form, { headers });
+      await axios.put(`/api/admin/trainings/${currentId.value}`, form, { headers });
     } else {
-      await axios.post('/api/trainings', form, { headers });
+      await axios.post('/api/admin/trainings', form, { headers });
     }
     await loadTrainings();
     closeModal();
@@ -203,7 +226,7 @@ const deleteTraining = async (training) => {
   if (!confirm(`Tem certeza que deseja excluir "${training.title}"?`)) return;
 
   try {
-    await axios.delete(`/api/trainings/${training.id}`, {
+    await axios.delete(`/api/admin/trainings/${training.id}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     await loadTrainings();
@@ -236,6 +259,40 @@ onMounted(() => {
   font-weight: 800;
   color: #1e293b;
 }
+
+/* Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon svg { width: 1.5rem; height: 1.5rem; }
+.stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+.stat-icon.green { background: #dcfce7; color: #166534; }
+
+.stat-info h3 { margin: 0; color: #64748b; font-size: 0.875rem; }
+.stat-info .value { margin: 0.25rem 0 0 0; font-size: 1.5rem; font-weight: 700; color: #1e293b; }
 
 .card {
   background: white;

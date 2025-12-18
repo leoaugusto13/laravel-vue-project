@@ -16,40 +16,51 @@ use App\Http\Controllers\CourseController;
 |
 */
 
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
 
-    // User Management
-    Route::get('/users', [UserController::class, 'index']);
-    Route::put('/users/{user}', [UserController::class, 'update']);
-    Route::put('/users/{user}', [UserController::class, 'update']);
-    Route::post('/users/{user}/toggle-approval', [UserController::class, 'toggleApproval']);
+    // Admin Routes
+    Route::prefix('admin')->group(function () {
+        // User Management
+        Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index']);
+        Route::put('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'update']);
+        Route::post('/users/{user}/toggle-approval', [App\Http\Controllers\Admin\UserController::class, 'toggleApproval']);
 
-    // Logs
-    Route::get('/logs', [App\Http\Controllers\SystemLogController::class, 'index']);
+        // Logs
+        Route::get('/logs', [App\Http\Controllers\Admin\SystemLogController::class, 'index']);
 
-    // Reports
-    Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index']);
+        // Reports
+        Route::get('/reports', [App\Http\Controllers\Admin\ReportController::class, 'index']);
 
+        // Courses
+        Route::get('/courses', [App\Http\Controllers\Admin\CourseController::class, 'index']);
+        Route::post('/courses', [App\Http\Controllers\Admin\CourseController::class, 'store']);
+        Route::put('/courses/{course}', [App\Http\Controllers\Admin\CourseController::class, 'update']);
+        Route::delete('/courses/{course}', [App\Http\Controllers\Admin\CourseController::class, 'destroy']);
+
+        // Trainings
+        Route::apiResource('trainings', App\Http\Controllers\Admin\TrainingController::class);
+
+        // Directorates
+        Route::apiResource('directorates', App\Http\Controllers\Admin\DirectorateController::class);
+
+        // Target Audiences
+        Route::apiResource('target-audiences', App\Http\Controllers\Admin\TargetAudienceController::class);
+
+        // Modalities
+        Route::apiResource('modalities', App\Http\Controllers\Admin\ModalityController::class);
+    });
+
+    // Public/User Routes
     // Enrollments
     Route::post('/enrollments', [App\Http\Controllers\EnrollmentController::class, 'store']);
 
-    // Courses
-    Route::get('/courses', [CourseController::class, 'index']);
-    Route::post('/courses', [CourseController::class, 'store']);
-    Route::put('/courses/{course}', [CourseController::class, 'update']);
-    Route::delete('/courses/{course}', [CourseController::class, 'destroy']);
-
-    // Trainings
-    Route::apiResource('trainings', App\Http\Controllers\TrainingController::class);
-
-    // Directorates
-    Route::apiResource('directorates', App\Http\Controllers\DirectorateController::class);
-
-    // Modalities
-    Route::apiResource('modalities', App\Http\Controllers\ModalityController::class);
+    // Courses for Enrollment (using Admin controller for now, but exposed publicly/authenticated users)
+    // Alternatively, we can alias /api/courses to the admin one if needed by frontend
+    Route::get('/courses', [App\Http\Controllers\Admin\CourseController::class, 'index']); 
 });
 
 Route::post('/register', [AuthController::class, 'register']);

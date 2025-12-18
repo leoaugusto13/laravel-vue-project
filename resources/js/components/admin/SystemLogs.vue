@@ -76,7 +76,7 @@ onMounted(() => {
 
 const fetchLogs = async (page = 1) => {
   try {
-    const response = await axios.get(`/api/logs?page=${page}`, {
+    const response = await axios.get(`/api/admin/logs?page=${page}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     logs.value = response.data.data;

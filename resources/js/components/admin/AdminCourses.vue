@@ -11,6 +11,28 @@
       </button>
     </div>
 
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        </div>
+        <div class="stat-info">
+          <h3>Total</h3>
+          <p class="value">{{ courses.length }}</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div class="stat-info">
+          <h3>Ativos</h3>
+          <p class="value">{{ activeCourses }}</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Courses Table -->
     <div class="table-container">
       <table>
@@ -106,12 +128,15 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, onMounted, computed, reactive } from 'vue';
 import axios from 'axios';
 
 const courses = ref([]);
 const showModal = ref(false);
 const isEditing = ref(false);
+const loading = ref(false);
+
+const activeCourses = computed(() => courses.value.filter(c => c.status === 'active').length);
 const form = reactive({
   id: null,
   title: '',
@@ -126,7 +151,7 @@ onMounted(() => {
 
 const fetchCourses = async () => {
   try {
-    const response = await axios.get('/api/courses', {
+    const response = await axios.get('/api/admin/courses', {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     courses.value = response.data;
@@ -199,9 +224,9 @@ const saveCourse = async () => {
     if (isEditing.value) {
       // Laravel requires _method: PUT for FormData updates via POST
       formData.append('_method', 'PUT');
-      await axios.post(`/api/courses/${form.id}`, formData, { headers });
+      await axios.post(`/api/admin/courses/${form.id}`, formData, { headers });
     } else {
-      await axios.post('/api/courses', formData, { headers });
+      await axios.post('/api/admin/courses', formData, { headers });
     }
     
     await fetchCourses();
@@ -217,7 +242,7 @@ const deleteCourse = async (course) => {
   if (!confirm(`Tem certeza que deseja excluir o curso "${course.title}"?`)) return;
   
   try {
-    await axios.delete(`/api/courses/${course.id}`, {
+    await axios.delete(`/api/admin/courses/${course.id}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     fetchCourses();
@@ -250,7 +275,41 @@ const formatDate = (dateString) => {
   transition: background 0.2s;
 }
 .btn-primary:hover { background: #4f46e5; }
+/* Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
 
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon svg { width: 1.5rem; height: 1.5rem; }
+.stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+.stat-icon.green { background: #dcfce7; color: #166534; }
+
+.stat-info h3 { margin: 0; color: #64748b; font-size: 0.875rem; }
+.stat-info .value { margin: 0.25rem 0 0 0; font-size: 1.5rem; font-weight: 700; color: #1e293b; }
+
+/* Table */
 .table-container {
   background: white; border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-x: auto;

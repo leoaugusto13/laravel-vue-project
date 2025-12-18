@@ -1,0 +1,68 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\TargetAudience;
+use Illuminate\Http\Request;
+
+class TargetAudienceController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $audiences = TargetAudience::latest()->get();
+        return response()->json($audiences);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'boolean'
+        ]);
+
+        $audience = TargetAudience::create($validated);
+
+        return response()->json($audience, 201);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, TargetAudience $targetAudience)
+    {
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'boolean'
+        ]);
+
+        $targetAudience->update($validated);
+
+        return response()->json($targetAudience);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(TargetAudience $targetAudience)
+    {
+        $targetAudience->delete();
+        return response()->json(null, 204);
+    }
+}

@@ -1,11 +1,33 @@
 <template>
-  <div class="admin-modalities">
+  <div class="admin-directorates">
     <div class="header-section">
-      <h1 class="page-title">Modalidades</h1>
+      <h1 class="page-title">Diretorias e Coordenadorias</h1>
       <button @click="openModal()" class="btn-primary">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-        Nova Modalidade
+        Nova Diretoria
       </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+        </div>
+        <div class="stat-info">
+          <h3>Total</h3>
+          <p class="value">{{ directorates.length }}</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div class="stat-info">
+          <h3>Ativas</h3>
+          <p class="value">{{ activeDirectorates }}</p>
+        </div>
+      </div>
     </div>
 
     <div class="card">
@@ -13,35 +35,39 @@
         <table class="data-table">
           <thead>
             <tr>
+              <th>Sigla</th>
               <th>Descrição</th>
               <th>Status</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="modality in modalities" :key="modality.id">
+            <tr v-for="directorate in directorates" :key="directorate.id">
               <td>
-                <span class="modality-desc">{{ modality.description }}</span>
+                <span class="acronym-badge">{{ directorate.acronym }}</span>
               </td>
               <td>
-                <span class="status-badge" :class="modality.status">
-                  {{ modality.status === 'active' ? 'Ativo' : 'Inativo' }}
+                <span class="directorate-desc">{{ directorate.description || '-' }}</span>
+              </td>
+              <td>
+                <span class="status-badge" :class="directorate.status">
+                  {{ directorate.status === 'active' ? 'Ativo' : 'Inativo' }}
                 </span>
               </td>
               <td>
                 <div class="actions">
-                  <button @click="openModal(modality)" class="btn-icon edit" title="Editar">
+                  <button @click="openModal(directorate)" class="btn-icon edit" title="Editar">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                   </button>
-                  <button @click="deleteModality(modality)" class="btn-icon delete" title="Excluir">
+                  <button @click="deleteDirectorate(directorate)" class="btn-icon delete" title="Excluir">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                   </button>
                 </div>
               </td>
             </tr>
-            <tr v-if="modalities.length === 0">
+            <tr v-if="directorates.length === 0">
               <td colspan="3" class="empty-state">
-                Nenhuma modalidade encontrada.
+                Nenhuma diretoria encontrada.
               </td>
             </tr>
           </tbody>
@@ -53,14 +79,20 @@
     <div v-if="showModal" class="modal-backdrop" @click.self="closeModal">
       <div class="modal">
         <div class="modal-header">
-          <h3>{{ isEditing ? 'Editar Modalidade' : 'Nova Modalidade' }}</h3>
+          <h3>{{ isEditing ? 'Editar Diretoria' : 'Nova Diretoria' }}</h3>
           <button @click="closeModal" class="close-btn">&times;</button>
         </div>
-        <form @submit.prevent="saveModality" class="modal-body">
+        <form @submit.prevent="saveDirectorate" class="modal-body">
+          <div class="form-row">
+             <div class="form-group">
+              <label>Sigla</label>
+              <input v-model="form.acronym" type="text" required placeholder="Ex: DTIC" maxlength="10" />
+            </div>
+          </div>
           
           <div class="form-group">
             <label>Descrição</label>
-            <input v-model="form.description" type="text" required placeholder="Ex: Presencial" />
+            <textarea v-model="form.description" rows="3" placeholder="Descrição opcional..."></textarea>
           </div>
 
           <div class="form-group">
@@ -96,10 +128,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, computed, reactive } from 'vue';
 import axios from 'axios';
 
-const modalities = ref([]);
+const directorates = ref([]);
+const activeDirectorates = computed(() => directorates.value.filter(d => d.status === 'active').length);
 const showModal = ref(false);
 const isEditing = ref(false);
 const loading = ref(false);
@@ -107,30 +140,33 @@ const currentId = ref(null);
 
 const form = reactive({
   description: '',
+  acronym: '',
   status: 'active'
 });
 
-const loadModalities = async () => {
+const loadDirectorates = async () => {
   try {
-    const response = await axios.get('/api/modalities', {
+    const response = await axios.get('/api/admin/directorates', {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
-    modalities.value = response.data;
+    directorates.value = response.data;
   } catch (error) {
-    console.error('Error loading modalities:', error);
-    alert('Erro ao carregar modalidades');
+    console.error('Error loading directorates:', error);
+    alert('Erro ao carregar diretorias');
   }
 };
 
-const openModal = (modality = null) => {
-  isEditing.value = !!modality;
-  if (modality) {
-    currentId.value = modality.id;
-    form.description = modality.description;
-    form.status = modality.status;
+const openModal = (directorate = null) => {
+  isEditing.value = !!directorate;
+  if (directorate) {
+    currentId.value = directorate.id;
+    form.description = directorate.description;
+    form.acronym = directorate.acronym;
+    form.status = directorate.status;
   } else {
     currentId.value = null;
     form.description = '';
+    form.acronym = '';
     form.status = 'active';
   }
   showModal.value = true;
@@ -140,46 +176,46 @@ const closeModal = () => {
   showModal.value = false;
 };
 
-const saveModality = async () => {
+const saveDirectorate = async () => {
   loading.value = true;
   try {
     const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
     if (isEditing.value) {
-      await axios.put(`/api/modalities/${currentId.value}`, form, { headers });
+      await axios.put(`/api/admin/directorates/${currentId.value}`, form, { headers });
     } else {
-      await axios.post('/api/modalities', form, { headers });
+      await axios.post('/api/admin/directorates', form, { headers });
     }
-    await loadModalities();
+    await loadDirectorates();
     closeModal();
   } catch (error) {
-    console.error('Error saving modality:', error);
-    alert('Erro ao salvar modalidade: ' + (error.response?.data?.message || error.message));
+    console.error('Error saving directorate:', error);
+    alert('Erro ao salvar diretoria: ' + (error.response?.data?.message || error.message));
   } finally {
     loading.value = false;
   }
 };
 
-const deleteModality = async (modality) => {
-  if (!confirm(`Tem certeza que deseja excluir "${modality.description}"?`)) return;
+const deleteDirectorate = async (directorate) => {
+  if (!confirm(`Tem certeza que deseja excluir "${directorate.name}"?`)) return;
 
   try {
-    await axios.delete(`/api/modalities/${modality.id}`, {
+    await axios.delete(`/api/admin/directorates/${directorate.id}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
-    await loadModalities();
+    await loadDirectorates();
   } catch (error) {
-    console.error('Error deleting modality:', error);
-    alert('Erro ao excluir modalidade');
+    console.error('Error deleting directorate:', error);
+    alert('Erro ao excluir diretoria');
   }
 };
 
 onMounted(() => {
-  loadModalities();
+  loadDirectorates();
 });
 </script>
 
 <style scoped>
-.admin-modalities {
+.admin-directorates {
   padding: 1rem;
 }
 
@@ -195,6 +231,40 @@ onMounted(() => {
   font-weight: 800;
   color: #1e293b;
 }
+
+/* Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon svg { width: 1.5rem; height: 1.5rem; }
+.stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+.stat-icon.green { background: #dcfce7; color: #166534; }
+
+.stat-info h3 { margin: 0; color: #64748b; font-size: 0.875rem; }
+.stat-info .value { margin: 0.25rem 0 0 0; font-size: 1.5rem; font-weight: 700; color: #1e293b; }
 
 .card {
   background: white;
@@ -229,26 +299,14 @@ onMounted(() => {
   vertical-align: middle;
 }
 
-.modality-desc {
+.directorate-name {
   font-weight: 600;
   color: #0f172a;
 }
 
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.status-badge.active {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.status-badge.inactive {
-  background: #fef2f2;
-  color: #dc2626;
+.directorate-desc {
+  font-size: 0.875rem;
+  color: #64748b;
 }
 
 .actions {
@@ -397,7 +455,8 @@ onMounted(() => {
   color: #475569;
 }
 
-.form-group input {
+.form-group input,
+.form-group textarea {
   padding: 0.75rem;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
@@ -406,7 +465,8 @@ onMounted(() => {
   color: #1e293b;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
@@ -421,40 +481,36 @@ onMounted(() => {
   border-radius: 0 0 24px 24px;
 }
 
-.status-toggle-wrapper {
-  display: flex;
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1rem;
+}
+
+.acronym-badge {
+  font-family: monospace;
   background: #f1f5f9;
-  padding: 0.25rem;
-  border-radius: 12px;
-  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 700;
+  color: #475569;
 }
 
-.status-choice {
-  flex: 1;
-  border: none;
-  background: transparent;
-  padding: 0.6rem;
-  border-radius: 8px;
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s;
 }
 
-.status-choice:hover {
-  background: rgba(255,255,255,0.5);
-}
-
-.status-choice.active {
+.status-badge.active {
   background: #eff6ff;
   color: #2563eb;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.status-choice.inactive {
+.status-badge.inactive {
   background: #fef2f2;
   color: #dc2626;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .empty-state {

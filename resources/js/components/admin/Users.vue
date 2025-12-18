@@ -5,6 +5,28 @@
       <p>Visualize e gerencie todos os usuários cadastrados.</p>
     </div>
 
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        </div>
+        <div class="stat-info">
+          <h3>Total</h3>
+          <p class="value">{{ users.length }}</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div class="stat-info">
+          <h3>Aprovados</h3>
+          <p class="value">{{ approvedUsers }}</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Users Table -->
     <div class="table-container">
       <table>
@@ -85,10 +107,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 const users = ref([]);
+const approvedUsers = computed(() => users.value.filter(u => u.is_approved).length);
 const editingUser = ref(null);
 
 onMounted(() => {
@@ -97,7 +120,7 @@ onMounted(() => {
 
 const fetchUsers = async () => {
   try {
-    const response = await axios.get('/api/users', {
+    const response = await axios.get('/api/admin/users', {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     users.value = response.data;
@@ -108,7 +131,7 @@ const fetchUsers = async () => {
 
 const toggleApproval = async (user) => {
   try {
-    const response = await axios.post(`/api/users/${user.id}/toggle-approval`, {}, {
+    const response = await axios.post(`/api/admin/users/${user.id}/toggle-approval`, {}, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     // Update local state without refresh
@@ -129,7 +152,7 @@ const closeEditModal = () => {
 
 const saveUser = async () => {
   try {
-    await axios.put(`/api/users/${editingUser.value.id}`, editingUser.value, {
+    await axios.put(`/api/admin/users/${editingUser.value.id}`, editingUser.value, {
        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     
@@ -160,6 +183,40 @@ const saveUser = async () => {
   color: #64748b;
   margin-bottom: 2rem;
 }
+
+/* Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon svg { width: 1.5rem; height: 1.5rem; }
+.stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+.stat-icon.green { background: #dcfce7; color: #166534; }
+
+.stat-info h3 { margin: 0; color: #64748b; font-size: 0.875rem; }
+.stat-info .value { margin: 0.25rem 0 0 0; font-size: 1.5rem; font-weight: 700; color: #1e293b; }
 
 .table-container {
   background: white;

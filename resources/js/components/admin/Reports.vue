@@ -87,7 +87,7 @@ onMounted(() => {
 
 const fetchReports = async () => {
   try {
-    const response = await axios.get('/api/reports', {
+    const response = await axios.get('/api/admin/reports', {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     reportData.value = response.data;

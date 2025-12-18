@@ -2,16 +2,17 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../components/Login.vue';
 import Register from '../components/Register.vue';
 import ForgotPassword from '../components/ForgotPassword.vue';
-import Users from '../components/Users.vue';
+import Users from '../components/admin/Users.vue';
 import Inscricoes from '../components/Inscricoes.vue';
-import AdminCourses from '../components/AdminCourses.vue';
-import DashboardStats from '../components/DashboardStats.vue';
-import SystemLogs from '../components/SystemLogs.vue';
-import Reports from '../components/Reports.vue';
+import AdminCourses from '../components/admin/AdminCourses.vue';
+import DashboardStats from '../components/admin/DashboardStats.vue';
+import SystemLogs from '../components/admin/SystemLogs.vue';
+import Reports from '../components/admin/Reports.vue';
 import Home from '../components/Home.vue';
-import AdminTrainings from '../components/AdminTrainings.vue';
-import AdminDirectorates from '../components/AdminDirectorates.vue';
-import AdminModalities from '../components/AdminModalities.vue';
+import AdminTrainings from '../components/admin/AdminTrainings.vue';
+import AdminDirectorates from '../components/admin/AdminDirectorates.vue';
+import AdminModalities from '../components/admin/AdminModalities.vue';
+import AdminTargetAudiences from '../components/admin/AdminTargetAudiences.vue';
 
 const routes = [
     {
@@ -90,6 +91,11 @@ const routes = [
                 path: 'modalities',
                 name: 'admin-modalities',
                 component: AdminModalities
+            },
+            {
+                path: 'target-audiences',
+                name: 'admin-target-audiences',
+                component: AdminTargetAudiences
             }
         ]
     },
