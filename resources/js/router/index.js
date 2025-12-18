@@ -15,6 +15,9 @@ import AdminModalities from '../components/admin/AdminModalities.vue';
 import AdminTargetAudiences from '../components/admin/AdminTargetAudiences.vue';
 import AdminTrainingTypes from '../components/admin/AdminTrainingTypes.vue';
 import AdminStrategies from '../components/admin/AdminStrategies.vue';
+import AdminCities from '../components/admin/AdminCities.vue';
+import AdminStates from '../components/admin/AdminStates.vue';
+import AdminRegionals from '../components/admin/AdminRegionals.vue';
 
 const routes = [
     {
@@ -108,6 +111,21 @@ const routes = [
                 path: 'strategies',
                 name: 'admin-strategies',
                 component: AdminStrategies
+            },
+            {
+                path: 'cities',
+                name: 'admin-cities',
+                component: AdminCities
+            },
+            {
+                path: 'states',
+                name: 'admin-states',
+                component: AdminStates
+            },
+            {
+                path: 'regionals',
+                name: 'admin-regionals',
+                component: AdminRegionals
             },
         ]
     },

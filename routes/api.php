@@ -58,6 +58,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Modalities
         Route::apiResource('modalities', App\Http\Controllers\Admin\ModalityController::class);
+
+        // Cities
+        Route::apiResource('cities', App\Http\Controllers\API\CityController::class);
+
+        // States
+        Route::apiResource('states', App\Http\Controllers\API\StateController::class);
+
+        // Regionals
+        Route::apiResource('regionals', App\Http\Controllers\API\RegionalController::class);
     });
 
     // Public/User Routes
