@@ -48,7 +48,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('directorates', App\Http\Controllers\Admin\DirectorateController::class);
 
         // Target Audiences
-        Route::apiResource('target-audiences', App\Http\Controllers\Admin\TargetAudienceController::class);
+    Route::apiResource('target-audiences', App\Http\Controllers\Admin\TargetAudienceController::class);
+
+    // Training Types
+    Route::apiResource('training-types', App\Http\Controllers\Admin\TrainingTypeController::class);
 
         // Modalities
         Route::apiResource('modalities', App\Http\Controllers\Admin\ModalityController::class);

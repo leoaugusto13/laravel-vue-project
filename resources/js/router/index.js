@@ -13,6 +13,7 @@ import AdminTrainings from '../components/admin/AdminTrainings.vue';
 import AdminDirectorates from '../components/admin/AdminDirectorates.vue';
 import AdminModalities from '../components/admin/AdminModalities.vue';
 import AdminTargetAudiences from '../components/admin/AdminTargetAudiences.vue';
+import AdminTrainingTypes from '../components/admin/AdminTrainingTypes.vue';
 
 const routes = [
     {
@@ -96,7 +97,12 @@ const routes = [
                 path: 'target-audiences',
                 name: 'admin-target-audiences',
                 component: AdminTargetAudiences
-            }
+            },
+            {
+                path: 'training-types',
+                name: 'admin-training-types',
+                component: AdminTrainingTypes
+            },
         ]
     },
     {

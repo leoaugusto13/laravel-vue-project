@@ -30,6 +30,8 @@ class TargetAudienceController extends Controller
 
         $audience = TargetAudience::create($validated);
 
+        \App\Services\LoggerService::log('TARGET_AUDIENCE_CREATE', "Target Audience '{$audience->name}' created");
+
         return response()->json($audience, 201);
     }
 
@@ -54,6 +56,8 @@ class TargetAudienceController extends Controller
 
         $targetAudience->update($validated);
 
+        \App\Services\LoggerService::log('TARGET_AUDIENCE_UPDATE', "Target Audience '{$targetAudience->name}' updated");
+
         return response()->json($targetAudience);
     }
 
@@ -62,7 +66,11 @@ class TargetAudienceController extends Controller
      */
     public function destroy(TargetAudience $targetAudience)
     {
+        $name = $targetAudience->name;
         $targetAudience->delete();
+        
+        \App\Services\LoggerService::log('TARGET_AUDIENCE_DELETE', "Target Audience '{$name}' deleted");
+
         return response()->json(null, 204);
     }
 }
