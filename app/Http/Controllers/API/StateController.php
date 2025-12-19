@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\State;
 use Illuminate\Http\Request;
 
+use App\Models\SystemLog;
+use Illuminate\Support\Facades\Auth;
+
 class StateController extends Controller
 {
     /**
@@ -29,6 +32,13 @@ class StateController extends Controller
 
         $state = State::create($validated);
 
+        SystemLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'CREATE_STATE',
+            'description' => "Usuário criou o estado {$state->name} ({$state->uf})",
+            'ip_address' => $request->ip()
+        ]);
+
         return response()->json($state, 201);
     }
 
@@ -51,7 +61,15 @@ class StateController extends Controller
             'active' => 'boolean'
         ]);
 
+        $oldName = $state->name;
         $state->update($validated);
+
+        SystemLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'UPDATE_STATE',
+            'description' => "Usuário atualizou o estado {$oldName} para {$state->name} (UF: {$state->uf}) (ID: {$state->id})",
+            'ip_address' => $request->ip()
+        ]);
 
         return response()->json($state);
     }
@@ -59,9 +77,18 @@ class StateController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(State $state)
+    public function destroy(Request $request, State $state)
     {
+        $stateName = $state->name;
         $state->delete();
+
+        SystemLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'DELETE_STATE',
+            'description' => "Usuário excluiu o estado {$stateName}",
+            'ip_address' => $request->ip()
+        ]);
+
         return response()->json(null, 204);
     }
 }

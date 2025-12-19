@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Regional;
 use Illuminate\Http\Request;
 
+use App\Models\SystemLog;
+use Illuminate\Support\Facades\Auth;
+
 class RegionalController extends Controller
 {
     /**
@@ -29,6 +32,13 @@ class RegionalController extends Controller
 
         $regional = Regional::create($validated);
 
+        SystemLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'CREATE_REGIONAL',
+            'description' => "Usuário criou a regional {$regional->name} ({$regional->id})",
+            'ip_address' => $request->ip()
+        ]);
+
         return response()->json($regional, 201);
     }
 
@@ -51,7 +61,15 @@ class RegionalController extends Controller
             'active' => 'boolean'
         ]);
 
+        $oldName = $regional->name;
         $regional->update($validated);
+
+        SystemLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'UPDATE_REGIONAL',
+            'description' => "Usuário atualizou a regional {$oldName} para {$regional->name} (ID: {$regional->id})",
+            'ip_address' => $request->ip()
+        ]);
 
         return response()->json($regional);
     }
@@ -59,9 +77,18 @@ class RegionalController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Regional $regional)
+    public function destroy(Request $request, Regional $regional)
     {
+        $regionalName = $regional->name;
         $regional->delete();
+
+        SystemLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'DELETE_REGIONAL',
+            'description' => "Usuário excluiu a regional {$regionalName}",
+            'ip_address' => $request->ip()
+        ]);
+
         return response()->json(null, 204);
     }
 }

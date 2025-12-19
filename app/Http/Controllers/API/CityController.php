@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\City;
 use Illuminate\Http\Request;
 
+use App\Models\SystemLog;
+use Illuminate\Support\Facades\Auth;
+
 class CityController extends Controller
 {
     /**
@@ -29,6 +32,13 @@ class CityController extends Controller
 
         $city = City::create($validated);
 
+        SystemLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'CREATE_CITY',
+            'description' => "Usuário criou o município {$city->name} ({$city->id})",
+            'ip_address' => $request->ip()
+        ]);
+
         return response()->json($city, 201);
     }
 
@@ -51,7 +61,15 @@ class CityController extends Controller
             'active' => 'boolean'
         ]);
 
+        $oldName = $city->name;
         $city->update($validated);
+
+        SystemLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'UPDATE_CITY',
+            'description' => "Usuário atualizou o município {$oldName} para {$city->name} (ID: {$city->id})",
+            'ip_address' => $request->ip()
+        ]);
 
         return response()->json($city);
     }
@@ -59,9 +77,18 @@ class CityController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(City $city)
+    public function destroy(Request $request, City $city)
     {
+        $cityName = $city->name;
         $city->delete();
+
+        SystemLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'DELETE_CITY',
+            'description' => "Usuário excluiu o município {$cityName}",
+            'ip_address' => $request->ip()
+        ]);
+
         return response()->json(null, 204);
     }
 }
