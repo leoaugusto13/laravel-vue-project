@@ -113,7 +113,12 @@
           <div class="form-row">
             <div class="form-group">
               <label>Ano</label>
-              <input v-model="form.year" type="number" required min="2000" max="2100" />
+              <select v-model="form.year" required>
+                <option value="" disabled>Selecione...</option>
+                <option v-for="y in availableYears" :key="y.id" :value="y.year">
+                  {{ y.year }}
+                </option>
+              </select>
             </div>
             <div class="form-group">
               <label>Status</label>
@@ -143,6 +148,15 @@ import axios from 'axios';
 const trainings = ref([]);
 const activeTrainings = computed(() => trainings.value.filter(t => t.status === 'active').length);
 const directorates = ref([]);
+const years = ref([]);
+const availableYears = computed(() => {
+    // If editing, include the current year even if closed (to allow saving other changes)
+    if (isEditing.value) {
+        return years.value.filter(y => !y.is_closed || y.year == form.year);
+    }
+    // If creating, only show open years
+    return years.value.filter(y => !y.is_closed);
+});
 const showModal = ref(false);
 const isEditing = ref(false);
 const loading = ref(false);
@@ -164,6 +178,17 @@ const loadDirectorates = async () => {
     directorates.value = response.data;
   } catch (error) {
     console.error('Error loading directorates:', error);
+  }
+};
+
+const loadYears = async () => {
+  try {
+    const response = await axios.get('/api/admin/years', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    years.value = response.data;
+  } catch (error) {
+    console.error('Error loading years:', error);
   }
 };
 
@@ -239,6 +264,7 @@ const deleteTraining = async (training) => {
 onMounted(() => {
   loadTrainings();
   loadDirectorates();
+  loadYears();
 });
 </script>
 

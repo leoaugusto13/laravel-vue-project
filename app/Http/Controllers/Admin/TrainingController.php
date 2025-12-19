@@ -19,7 +19,17 @@ class TrainingController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'year' => 'required|integer|min:2000|max:2100',
+            'year' => [
+                'required',
+                'integer',
+                'exists:years,year',
+                function ($attribute, $value, $fail) {
+                    $year = \App\Models\Year::where('year', $value)->first();
+                    if ($year && $year->is_closed) {
+                        $fail('Não é possível criar capacitações para um ano encerrado.');
+                    }
+                },
+            ],
             'status' => 'required|in:active,inactive',
             'directorate_id' => 'nullable|exists:directorates,id'
         ]);
@@ -33,7 +43,17 @@ class TrainingController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'year' => 'required|integer|min:2000|max:2100',
+            'year' => [
+                'required',
+                'integer',
+                'exists:years,year',
+                function ($attribute, $value, $fail) {
+                    $year = \App\Models\Year::where('year', $value)->first();
+                    if ($year && $year->is_closed) {
+                        $fail('Não é possível mover capacitações para um ano encerrado.');
+                    }
+                },
+            ],
             'status' => 'required|in:active,inactive',
             'directorate_id' => 'nullable|exists:directorates,id'
         ]);

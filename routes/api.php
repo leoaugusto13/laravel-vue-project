@@ -52,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Training Types
     Route::apiResource('training-types', App\Http\Controllers\Admin\TrainingTypeController::class);
+    Route::apiResource('years', App\Http\Controllers\Admin\YearController::class);
 
     // Strategies
     Route::apiResource('strategies', App\Http\Controllers\Admin\StrategyController::class);

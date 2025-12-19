@@ -18,6 +18,7 @@ import AdminStrategies from '../components/admin/AdminStrategies.vue';
 import AdminCities from '../components/admin/AdminCities.vue';
 import AdminStates from '../components/admin/AdminStates.vue';
 import AdminRegionals from '../components/admin/AdminRegionals.vue';
+import AdminYears from '../components/admin/AdminYears.vue'; // Imported
 
 const routes = [
     {
@@ -126,6 +127,11 @@ const routes = [
                 path: 'regionals',
                 name: 'admin-regionals',
                 component: AdminRegionals
+            },
+            {
+                path: 'years',
+                name: 'admin-years',
+                component: AdminYears
             },
         ]
     },
