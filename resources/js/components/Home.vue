@@ -64,7 +64,7 @@
                   </svg>
                 </button>
                 
-                <div class="submenu" :class="{ 'open': expandedMenus[item.label] }" :style="{ maxHeight: expandedMenus[item.label] ? '500px' : '0px' }">
+                <div class="submenu" :class="{ 'open': expandedMenus[item.label] }" :style="{ maxHeight: expandedMenus[item.label] ? '2000px' : '0px' }">
                   <router-link 
                     v-for="child in item.children" 
                     :key="child.path"
@@ -145,10 +145,11 @@ const adminMenuItems = [
         { label: 'Estados', path: '/admin/states' },
         { label: 'Estratégias', path: '/admin/strategies' },
         { label: 'Modalidades', path: '/admin/modalities' },
+        { label: 'Localizações', path: '/admin/locations' },
         { label: 'Municípios', path: '/admin/cities' },
         { label: 'Público Alvo', path: '/admin/target-audiences' },
         { label: 'Regionais', path: '/admin/regionals' },
-        { label: 'Tipologias', path: '/admin/training-types' },
+        { label: 'Treinamentos (Tipos)', path: '/admin/training-types' },
         { label: 'Usuários', path: '/admin/users' },
     ]
   },
@@ -273,12 +274,16 @@ const handleLogout = () => {
   overflow-x: hidden;
   box-shadow: 2px 0 10px rgba(0,0,0,0.02);
   
-  /* Hide scrollbar */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  /* Enable scrollbar */
+  scrollbar-width: auto;
 }
 .sidebar::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+  display: block;
+  width: 6px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 3px;
 }
 
 .sidebar-container {

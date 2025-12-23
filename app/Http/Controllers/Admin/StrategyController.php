@@ -29,7 +29,7 @@ class StrategyController extends Controller
 
         $strategy = Strategy::create($validated);
 
-        LoggerService::log('STRATEGY_CREATE', "Strategy created with description: " . substr($strategy->description, 0, 50));
+        LoggerService::log('STRATEGY_CREATE', "Estratégia criada: " . substr($strategy->description, 0, 50));
 
         return response()->json($strategy, 201);
     }
@@ -54,7 +54,7 @@ class StrategyController extends Controller
 
         $strategy->update($validated);
 
-        LoggerService::log('STRATEGY_UPDATE', "Strategy updated (ID: {$strategy->id})");
+        LoggerService::log('STRATEGY_UPDATE', "Estratégia atualizada (ID: {$strategy->id})");
 
         return response()->json($strategy);
     }
@@ -67,7 +67,7 @@ class StrategyController extends Controller
         $id = $strategy->id;
         $strategy->delete();
 
-        LoggerService::log('STRATEGY_DELETE', "Strategy deleted (ID: {$id})");
+        LoggerService::log('STRATEGY_DELETE', "Estratégia excluída (ID: {$id})");
 
         return response()->json(null, 204);
     }

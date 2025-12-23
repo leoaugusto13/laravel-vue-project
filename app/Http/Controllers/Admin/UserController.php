@@ -39,7 +39,7 @@ class UserController extends Controller
 
         $user->update($validated);
 
-        \App\Services\LoggerService::log('USER_UPDATE', "User profile updated");
+        \App\Services\LoggerService::log('USER_UPDATE', "Perfil de usuário atualizado");
 
         return response()->json([
             'message' => 'Usuário atualizado com sucesso!',
@@ -59,8 +59,8 @@ class UserController extends Controller
         $user->is_approved = !$user->is_approved;
         $user->save();
 
-        $status = $user->is_approved ? 'approved' : 'disapproved';
-        \App\Services\LoggerService::log('USER_APPROVAL_TOGGLE', "User status changed to {$status}");
+        $status = $user->is_approved ? 'aprovado' : 'reprovado';
+        \App\Services\LoggerService::log('USER_APPROVAL_TOGGLE', "Status do usuário alterado para {$status}");
 
         return response()->json([
             'message' => 'Status do usuário alterado com sucesso!',

@@ -18,7 +18,8 @@ import AdminStrategies from '../components/admin/AdminStrategies.vue';
 import AdminCities from '../components/admin/AdminCities.vue';
 import AdminStates from '../components/admin/AdminStates.vue';
 import AdminRegionals from '../components/admin/AdminRegionals.vue';
-import AdminYears from '../components/admin/AdminYears.vue'; // Imported
+import AdminYears from '../components/admin/AdminYears.vue';
+import AdminLocations from '../components/admin/AdminLocations.vue'; // Imported
 
 const routes = [
     {
@@ -132,6 +133,11 @@ const routes = [
                 path: 'years',
                 name: 'admin-years',
                 component: AdminYears
+            },
+            {
+                path: 'locations',
+                name: 'admin-locations',
+                component: AdminLocations
             },
         ]
     },

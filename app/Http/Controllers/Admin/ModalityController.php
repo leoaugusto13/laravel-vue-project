@@ -22,6 +22,9 @@ class ModalityController extends Controller
         ]);
 
         $modality = Modality::create($validated);
+        
+        \App\Services\LoggerService::log('MODALITY_CREATE', "Modalidade '{$modality->description}' criada");
+
         return response()->json($modality, 201);
     }
 
@@ -38,12 +41,19 @@ class ModalityController extends Controller
         ]);
 
         $modality->update($validated);
+        
+        \App\Services\LoggerService::log('MODALITY_UPDATE', "Modalidade '{$modality->description}' atualizada");
+
         return response()->json($modality);
     }
 
     public function destroy(Modality $modality)
     {
+        $name = $modality->description;
         $modality->delete();
+        
+        \App\Services\LoggerService::log('MODALITY_DELETE', "Modalidade '{$name}' excluída");
+
         return response()->json(null, 204);
     }
 }

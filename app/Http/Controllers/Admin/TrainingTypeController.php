@@ -29,7 +29,7 @@ class TrainingTypeController extends Controller
 
         $trainingType = TrainingType::create($validated);
 
-        \App\Services\LoggerService::log('TRAINING_TYPE_CREATE', "Training Type '{$trainingType->name}' created");
+        \App\Services\LoggerService::log('TRAINING_TYPE_CREATE', "Tipo de Treinamento '{$trainingType->name}' criado");
 
         return response()->json($trainingType, 201);
     }
@@ -55,7 +55,7 @@ class TrainingTypeController extends Controller
 
         $trainingType->update($validated);
 
-        \App\Services\LoggerService::log('TRAINING_TYPE_UPDATE', "Training Type '{$trainingType->name}' updated");
+        \App\Services\LoggerService::log('TRAINING_TYPE_UPDATE', "Tipo de Treinamento '{$trainingType->name}' atualizado");
 
         return response()->json($trainingType);
     }
@@ -68,7 +68,7 @@ class TrainingTypeController extends Controller
         $name = $trainingType->name;
         $trainingType->delete();
 
-        \App\Services\LoggerService::log('TRAINING_TYPE_DELETE', "Training Type '{$name}' deleted");
+        \App\Services\LoggerService::log('TRAINING_TYPE_DELETE', "Tipo de Treinamento '{$name}' excluído");
 
         return response()->json(null, 204);
     }

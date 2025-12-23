@@ -52,6 +52,9 @@
               </td>
               <td>
                 <div class="actions">
+                  <button @click="openLocationsModal(modality)" class="btn-icon locations" title="Locais">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                  </button>
                   <button @click="openModal(modality)" class="btn-icon edit" title="Editar">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                   </button>
@@ -114,6 +117,78 @@
         </form>
       </div>
     </div>
+
+
+    <!-- Locations Modal -->
+    <div v-if="showLocationsModal" class="modal-backdrop" @click.self="closeLocationsModal">
+      <div class="modal locations-modal">
+        <div class="modal-header">
+          <h3>Locais de Execução: {{ currentModality?.description }}</h3>
+          <button @click="closeLocationsModal" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <!-- Add Location Form -->
+          <div class="add-location-form">
+            <h4>Adicionar Local</h4>
+            <div class="location-inputs">
+              <div class="form-group">
+                <label>Município</label>
+                <select v-model="locationForm.city_id" :disabled="locationForm.regional_id || locationForm.uaitec || locationForm.ead">
+                  <option value="">Selecione...</option>
+                  <option v-for="city in cities" :key="city.id" :value="city.id">{{ city.name }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Regional</label>
+                <select v-model="locationForm.regional_id" :disabled="locationForm.city_id || locationForm.uaitec || locationForm.ead">
+                  <option value="">Selecione...</option>
+                  <option v-for="reg in regionals" :key="reg.id" :value="reg.id">{{ reg.name }}</option>
+                </select>
+              </div>
+              <div class="checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" v-model="locationForm.uaitec" :disabled="locationForm.city_id || locationForm.regional_id || locationForm.ead">
+                  UAITEC
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" v-model="locationForm.ead" :disabled="locationForm.city_id || locationForm.regional_id || locationForm.uaitec">
+                  EAD
+                </label>
+              </div>
+              <button @click="addLocation" class="btn-primary" :disabled="isAddLocationDisabled">Adicionar</button>
+            </div>
+          </div>
+
+          <!-- Locations List -->
+          <div class="locations-list">
+             <h4>Locais Cadastrados</h4>
+             <table class="data-table small">
+               <thead>
+                 <tr>
+                   <th>Tipo</th>
+                   <th>Nome</th>
+                   <th>Ações</th>
+                 </tr>
+               </thead>
+               <tbody>
+                 <tr v-for="location in locations" :key="location.id">
+                   <td>{{ getLocationType(location) }}</td>
+                   <td>{{ getLocationName(location) }}</td>
+                   <td>
+                     <button @click="deleteLocation(location)" class="btn-icon delete small">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                     </button>
+                   </td>
+                 </tr>
+                 <tr v-if="locations.length === 0">
+                   <td colspan="3" class="empty-state small">Nenhum local cadastrado.</td>
+                 </tr>
+               </tbody>
+             </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -128,6 +203,18 @@ const isEditing = ref(false);
 const loading = ref(false);
 const currentId = ref(null);
 
+const showLocationsModal = ref(false);
+const currentModality = ref(null);
+const locations = ref([]);
+const cities = ref([]);
+const regionals = ref([]);
+const locationForm = reactive({
+  city_id: '',
+  regional_id: '',
+  uaitec: false,
+  ead: false
+});
+
 const form = reactive({
   description: '',
   status: 'active'
@@ -138,12 +225,40 @@ const loadModalities = async () => {
     const response = await axios.get('/api/admin/modalities', {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
-    modalities.value = response.data;
+    // Remove locations_count dependency if backend no longer sends it or frontend doesn't need it
+    modalities.value = response.data.map(m => ({
+        ...m,
+        // status is usually part of the model now
+    }));
   } catch (error) {
     console.error('Error loading modalities:', error);
     alert('Erro ao carregar modalidades');
   }
 };
+
+const loadDependencies = async () => {
+  try {
+    const [citiesRes, regionalsRes] = await Promise.all([
+        axios.get('/api/admin/cities', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }}),
+        axios.get('/api/admin/regionals', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+    ]);
+    cities.value = citiesRes.data;
+    regionals.value = regionalsRes.data;
+  } catch (error) {
+    console.error('Error loading dependencies', error);
+  }
+};
+
+const loadLocations = async (modalityId) => {
+    try {
+        const response = await axios.get(`/api/modalities/${modalityId}/locations`, {
+             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        locations.value = response.data;
+    } catch(error) {
+        console.error('Error loading locations', error);
+    }
+}
 
 const openModal = (modality = null) => {
   isEditing.value = !!modality;
@@ -199,6 +314,76 @@ const deleteModality = async (modality) => {
 onMounted(() => {
   loadModalities();
 });
+
+const openLocationsModal = (modality) => {
+    currentModality.value = modality;
+    locationForm.city_id = '';
+    locationForm.regional_id = '';
+    locationForm.uaitec = false;
+    locationForm.ead = false;
+    loadLocations(modality.id);
+    showLocationsModal.value = true;
+};
+
+const closeLocationsModal = () => {
+    showLocationsModal.value = false;
+    currentModality.value = null;
+    locations.value = [];
+};
+
+const isAddLocationDisabled = computed(() => {
+    return !locationForm.city_id && !locationForm.regional_id && !locationForm.uaitec && !locationForm.ead;
+});
+
+const addLocation = async () => {
+    if (isAddLocationDisabled.value) return;
+    try {
+        await axios.post('/api/locations', {
+            modality_id: currentModality.value.id,
+           ...locationForm
+        }, {
+             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        // Reset form
+        locationForm.city_id = '';
+        locationForm.regional_id = '';
+        locationForm.uaitec = false;
+        locationForm.ead = false;
+        await loadLocations(currentModality.value.id);
+    } catch (error) {
+        console.error('Error adding location', error);
+        alert('Erro ao adicionar local');
+    }
+};
+
+const deleteLocation = async (location) => {
+    if(!confirm('Remover este local?')) return;
+    try {
+        await axios.delete(`/api/locations/${location.id}`, {
+             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        await loadLocations(currentModality.value.id);
+    } catch (error) {
+        console.error('Error deleting location', error);
+        alert('Erro ao excluir local');
+    }
+};
+
+const getLocationType = (location) => {
+    if (location.city_id) return 'Município';
+    if (location.regional_id) return 'Regional';
+    if (location.uaitec) return 'UAITEC';
+    if (location.ead) return 'EAD';
+    return '-';
+};
+
+const getLocationName = (location) => {
+    if (location.city) return location.city.name;
+    if (location.regional) return location.regional.name;
+    if (location.uaitec) return 'UAITEC';
+    if (location.ead) return 'Plataforma EAD';
+    return '-';
+};
 </script>
 
 <style scoped>
@@ -346,6 +531,14 @@ onMounted(() => {
   background: #fee2e2; 
 }
 
+.btn-icon.locations {
+    color: #8b5cf6;
+    background: #f3f0ff;
+}
+.btn-icon.locations:hover {
+    background: #e9e6ff;
+}
+
 /* Buttons */
 .btn-primary {
   display: flex;
@@ -402,6 +595,10 @@ onMounted(() => {
   max-width: 500px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   animation: modalSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.locations-modal {
+    max-width: 700px;
 }
 
 @keyframes modalSlide {
@@ -519,4 +716,50 @@ onMounted(() => {
   padding: 3rem;
   color: #64748b;
 }
+
+.empty-state.small {
+    padding: 1.5rem;
+}
+
+.add-location-form {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.add-location-form h4, .locations-list h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    color: #475569;
+}
+
+.location-inputs {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.checkbox-group {
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+}
+
+.data-table.small th, .data-table.small td {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+}
+
 </style>

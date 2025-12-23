@@ -60,6 +60,13 @@ Route::middleware('auth:sanctum')->group(function () {
         // Modalities
         Route::apiResource('modalities', App\Http\Controllers\Admin\ModalityController::class);
 
+        // Locations
+        Route::get('/locations', [App\Http\Controllers\Admin\LocationController::class, 'indexAll']);
+        Route::post('/locations', [App\Http\Controllers\Admin\LocationController::class, 'store']);
+        Route::put('/locations/{location}', [App\Http\Controllers\Admin\LocationController::class, 'update']);
+        Route::delete('/locations/{location}', [App\Http\Controllers\Admin\LocationController::class, 'destroy']);
+
+
         // Cities
         Route::apiResource('cities', App\Http\Controllers\API\CityController::class);
 

@@ -21,6 +21,9 @@ class YearController extends Controller
         ]);
 
         $year = Year::create($validated);
+        
+        \App\Services\LoggerService::log('YEAR_CREATE', "Ano '{$year->year}' criado");
+
         return response()->json($year, 201);
     }
 
@@ -31,12 +34,19 @@ class YearController extends Controller
         ]);
 
         $year->update($validated);
+        
+        \App\Services\LoggerService::log('YEAR_UPDATE', "Ano '{$year->year}' atualizado (Fechado: " . ($year->is_closed ? 'Sim' : 'Não') . ")");
+
         return response()->json($year);
     }
 
     public function destroy(Year $year)
     {
+        $yr = $year->year;
         $year->delete();
+        
+        \App\Services\LoggerService::log('YEAR_DELETE', "Ano '{$yr}' excluído");
+
         return response()->json(null, 204);
     }
 }

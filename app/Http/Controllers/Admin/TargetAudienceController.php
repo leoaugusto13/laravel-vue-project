@@ -30,7 +30,7 @@ class TargetAudienceController extends Controller
 
         $audience = TargetAudience::create($validated);
 
-        \App\Services\LoggerService::log('TARGET_AUDIENCE_CREATE', "Target Audience '{$audience->name}' created");
+        \App\Services\LoggerService::log('TARGET_AUDIENCE_CREATE', "Público Alvo '{$audience->name}' criado");
 
         return response()->json($audience, 201);
     }
@@ -56,7 +56,7 @@ class TargetAudienceController extends Controller
 
         $targetAudience->update($validated);
 
-        \App\Services\LoggerService::log('TARGET_AUDIENCE_UPDATE', "Target Audience '{$targetAudience->name}' updated");
+        \App\Services\LoggerService::log('TARGET_AUDIENCE_UPDATE', "Público Alvo '{$targetAudience->name}' atualizado");
 
         return response()->json($targetAudience);
     }
@@ -69,7 +69,7 @@ class TargetAudienceController extends Controller
         $name = $targetAudience->name;
         $targetAudience->delete();
         
-        \App\Services\LoggerService::log('TARGET_AUDIENCE_DELETE', "Target Audience '{$name}' deleted");
+        \App\Services\LoggerService::log('TARGET_AUDIENCE_DELETE', "Público Alvo '{$name}' excluído");
 
         return response()->json(null, 204);
     }

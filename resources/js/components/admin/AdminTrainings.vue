@@ -35,8 +35,12 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Título</th>
+              <th>Nome da Ação</th>
               <th>Diretoria</th>
+              <th>Local</th>
+              <th>Modalidade</th>
+              <th>Data</th>
+              <th>Carga Hor.</th>
               <th>Ano</th>
               <th>Status</th>
               <th>Ações</th>
@@ -46,12 +50,23 @@
             <tr v-for="training in trainings" :key="training.id">
               <td>
                 <div class="training-info">
-                  <span class="training-title">{{ training.title }}</span>
-                  <span class="training-desc" v-if="training.description">{{ training.description }}</span>
+                  <span class="training-title">{{ training.action_name }}</span>
                 </div>
               </td>
               <td>
                 <span class="directorate-badge">{{ training.directorate?.acronym || '-' }}</span>
+              </td>
+              <td>
+                <span class="location-badge">{{ training.location?.name || '-' }}</span>
+              </td>
+              <td>
+                <span class="modality-badge">{{ training.modality?.description || '-' }}</span>
+              </td>
+              <td>
+                <span class="date-badge">{{ formatDate(training.start_date) }}</span>
+              </td>
+              <td>
+                <span class="workload-badge">{{ training.workload || '-' }}</span>
               </td>
               <td>
                 <span class="year-badge">{{ training.year }}</span>
@@ -91,35 +106,98 @@
         </div>
         <form @submit.prevent="saveTraining" class="modal-body">
           <div class="form-group">
-            <label>Título</label>
-            <input v-model="form.title" type="text" required placeholder="Ex: Capacitação 2025" />
+            <label>Nome da Ação</label>
+            <input v-model="form.action_name" type="text" required placeholder="Ex: Capacitação 2025" />
           </div>
           
-          <div class="form-group">
-            <label>Descrição</label>
-            <textarea v-model="form.description" rows="3" placeholder="Detalhes da capacitação..."></textarea>
-          </div>
+
 
           <div class="form-group">
-            <label>Diretoria / Coordenadoria</label>
-            <select v-model="form.directorate_id" required>
-              <option value="" disabled>Selecione...</option>
-              <option v-for="dir in directorates" :key="dir.id" :value="dir.id">
-                {{ dir.acronym }}
+            <label>Localização</label>
+            <select v-model="form.location_id">
+              <option value="">Selecione...</option>
+              <option v-for="loc in locations" :key="loc.id" :value="loc.id">
+                {{ loc.name }}
               </option>
             </select>
           </div>
 
-          <div class="form-row">
+          <div class="form-group" v-if="showVenueField">
+             <label>Localidade (Local específico)</label>
+             <input v-model="form.venue" type="text" placeholder="Ex: Auditório da Escola X, Sala 10..." />
+          </div>
+
+          <div class="form-group">
+            <label>Modalidade</label>
+            <select v-model="form.modality_id" :disabled="!form.location_id">
+              <option value="">Selecione...</option>
+              <option v-for="mod in availableModalities" :key="mod.id" :value="mod.id">
+                {{ mod.description }}
+              </option>
+            </select>
+          </div>
+
             <div class="form-group">
-              <label>Ano</label>
-              <select v-model="form.year" required>
+              <label>Diretoria / Coordenadoria</label>
+              <select v-model="form.directorate_id" required>
                 <option value="" disabled>Selecione...</option>
-                <option v-for="y in availableYears" :key="y.id" :value="y.year">
-                  {{ y.year }}
+                <option v-for="dir in directorates" :key="dir.id" :value="dir.id">
+                  {{ dir.acronym }}
                 </option>
               </select>
             </div>
+
+            <div class="form-group">
+              <label>Treinamento</label>
+              <select v-model="form.training_type_id">
+                <option value="">Selecione...</option>
+                <option v-for="type in trainingTypes" :key="type.id" :value="type.id">
+                  {{ type.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Público Alvo</label>
+              <select v-model="form.target_audience_id">
+                <option value="">Selecione...</option>
+                <option v-for="target in targetAudiences" :key="target.id" :value="target.id">
+                  {{ target.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Estratégias</label>
+              <div class="checkbox-group">
+                <label v-for="strategy in strategies" :key="strategy.id" class="checkbox-item">
+                  <input type="checkbox" :value="strategy.id" v-model="form.strategies" />
+                  <span class="checkbox-label">{{ strategy.description }}</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Data de Início</label>
+                <input v-model="form.start_date" type="date" required>
+              </div>
+              <div class="form-group">
+                <label>Carga Horária</label>
+                <input v-model="form.workload" type="text" placeholder="Ex: 40h">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Ano</label>
+                <select v-model="form.year" required>
+                  <option value="" disabled>Selecione...</option>
+                  <option v-for="y in availableYears" :key="y.id" :value="y.year">
+                    {{ y.year }}
+                  </option>
+                </select>
+              </div>
             <div class="form-group">
               <label>Status</label>
               <select v-model="form.status">
@@ -148,7 +226,21 @@ import axios from 'axios';
 const trainings = ref([]);
 const activeTrainings = computed(() => trainings.value.filter(t => t.status === 'active').length);
 const directorates = ref([]);
+const locations = ref([]);
 const years = ref([]);
+const trainingTypes = ref([]);
+const targetAudiences = ref([]);
+const strategies = ref([]);
+const availableModalities = computed(() => {
+    if (!form.location_id) return [];
+    const location = locations.value.find(l => l.id === form.location_id);
+    return location ? location.modalities.filter(m => m.status === 'active' || (form.modality_id && m.id === form.modality_id)) : [];
+});
+
+const showVenueField = computed(() => {
+    return !!form.location_id;
+});
+
 const availableYears = computed(() => {
     // If editing, include the current year even if closed (to allow saving other changes)
     if (isEditing.value) {
@@ -163,16 +255,23 @@ const loading = ref(false);
 const currentId = ref(null);
 
 const form = reactive({
-  title: '',
-  description: '',
+  action_name: '',
   year: new Date().getFullYear(),
   status: 'active',
-  directorate_id: ''
+  directorate_id: '',
+  location_id: '',
+  venue: '',
+  modality_id: '',
+  training_type_id: '',
+  target_audience_id: '',
+  start_date: '',
+  workload: '',
+  strategies: []
 });
 
 const loadDirectorates = async () => {
   try {
-    const response = await axios.get('/api/directorates', {
+    const response = await axios.get('/api/admin/directorates', {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     directorates.value = response.data;
@@ -192,6 +291,51 @@ const loadYears = async () => {
   }
 };
 
+const loadLocations = async () => {
+  try {
+    const response = await axios.get('/api/admin/locations', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    locations.value = response.data;
+    locations.value = response.data;
+  } catch (error) {
+    console.error('Error loading locations:', error);
+  }
+};
+
+const loadTrainingTypes = async () => {
+  try {
+    const response = await axios.get('/api/admin/training-types', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    trainingTypes.value = response.data;
+  } catch (error) {
+    console.error('Error loading training types:', error);
+  }
+};
+
+const loadTargetAudiences = async () => {
+  try {
+    const response = await axios.get('/api/admin/target-audiences', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    targetAudiences.value = response.data;
+  } catch (error) {
+    console.error('Error loading target audiences:', error);
+  }
+};
+
+const loadStrategies = async () => {
+  try {
+    const response = await axios.get('/api/admin/strategies', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    strategies.value = response.data;
+  } catch (error) {
+    console.error('Error loading strategies:', error);
+  }
+};
+
 const loadTrainings = async () => {
   try {
     const response = await axios.get('/api/admin/trainings', {
@@ -208,18 +352,34 @@ const openModal = (training = null) => {
   isEditing.value = !!training;
   if (training) {
     currentId.value = training.id;
-    form.title = training.title;
-    form.description = training.description;
+    form.action_name = training.action_name;
     form.year = training.year;
     form.status = training.status;
+    form.status = training.status;
+    form.status = training.status;
     form.directorate_id = training.directorate_id || '';
+    form.location_id = training.location_id || '';
+    form.venue = training.venue || '';
+    form.modality_id = training.modality_id || '';
+    form.training_type_id = training.training_type_id || '';
+    form.target_audience_id = training.target_audience_id || '';
+    form.start_date = training.start_date || '';
+    form.workload = training.workload || '';
+    form.strategies = training.strategies ? training.strategies.map(s => s.id) : [];
   } else {
     currentId.value = null;
-    form.title = '';
-    form.description = '';
+    form.action_name = '';
     form.year = new Date().getFullYear();
     form.status = 'active';
     form.directorate_id = '';
+    form.location_id = '';
+    form.venue = '';
+    form.modality_id = '';
+    form.training_type_id = '';
+    form.target_audience_id = '';
+    form.start_date = '';
+    form.workload = '';
+    form.strategies = [];
   }
   showModal.value = true;
 };
@@ -248,7 +408,7 @@ const saveTraining = async () => {
 };
 
 const deleteTraining = async (training) => {
-  if (!confirm(`Tem certeza que deseja excluir "${training.title}"?`)) return;
+  if (!confirm(`Tem certeza que deseja excluir "${training.action_name}"?`)) return;
 
   try {
     await axios.delete(`/api/admin/trainings/${training.id}`, {
@@ -263,9 +423,21 @@ const deleteTraining = async (training) => {
 
 onMounted(() => {
   loadTrainings();
+  loadTrainings();
   loadDirectorates();
+  loadLocations();
+  loadLocations();
   loadYears();
+  loadTrainingTypes();
+  loadTargetAudiences();
+  loadStrategies();
 });
+
+const formatDate = (dateString) => {
+  if (!dateString) return '-';
+  const [year, month, day] = dateString.split('-');
+  return new Date(year, month - 1, day).toLocaleDateString('pt-BR');
+};
 </script>
 
 <style scoped>
@@ -468,6 +640,34 @@ onMounted(() => {
   z-index: 50;
   backdrop-filter: blur(4px);
 }
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9em;
+  color: #334155;
+  cursor: pointer;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 4px;
+}
+
 
 .modal {
   background: white;

@@ -23,6 +23,9 @@ class DirectorateController extends Controller
         ]);
 
         $directorate = Directorate::create($validated);
+        
+        \App\Services\LoggerService::log('DIRECTORATE_CREATE', "Diretoria '{$directorate->acronym}' criada");
+
         return response()->json($directorate, 201);
     }
 
@@ -40,12 +43,19 @@ class DirectorateController extends Controller
         ]);
 
         $directorate->update($validated);
+        
+        \App\Services\LoggerService::log('DIRECTORATE_UPDATE', "Diretoria '{$directorate->acronym}' atualizada");
+
         return response()->json($directorate);
     }
 
     public function destroy(Directorate $directorate)
     {
+        $name = $directorate->acronym;
         $directorate->delete();
+        
+        \App\Services\LoggerService::log('DIRECTORATE_DELETE', "Diretoria '{$name}' excluída");
+
         return response()->json(null, 204);
     }
 }

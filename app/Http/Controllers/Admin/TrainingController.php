@@ -11,14 +11,13 @@ class TrainingController extends Controller
 {
     public function index()
     {
-        return Training::with('directorate')->orderBy('year', 'desc')->get();
+        return Training::with(['directorate', 'location', 'modality', 'strategies', 'trainingType', 'targetAudience'])->orderBy('year', 'desc')->get();
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'action_name' => 'required|string|max:255',
             'year' => [
                 'required',
                 'integer',
@@ -31,18 +30,34 @@ class TrainingController extends Controller
                 },
             ],
             'status' => 'required|in:active,inactive',
-            'directorate_id' => 'nullable|exists:directorates,id'
+            'directorate_id' => 'nullable|exists:directorates,id',
+            'location_id' => 'nullable|exists:locations,id',
+            'modality_id' => 'nullable|exists:modalities,id',
+            'strategies' => 'array',
+            'strategies.*' => 'exists:strategies,id',
+            'training_type_id' => 'nullable|exists:training_types,id',
+            'target_audience_id' => 'nullable|exists:target_audiences,id',
+            'start_date' => 'nullable|date',
+            'workload' => 'nullable|string|max:255',
+            'venue' => 'nullable|string|max:255',
         ]);
 
         $training = Training::create($validated);
-        return response()->json($training, 201);
+        
+        if (isset($validated['strategies'])) {
+            $training->strategies()->sync($validated['strategies']);
+        }
+        
+        \App\Services\LoggerService::log('TRAINING_CREATE', "Capacitação '{$training->action_name}' criada");
+
+        // Reload to include relations
+        return response()->json($training->load(['directorate', 'location', 'modality', 'strategies', 'trainingType', 'targetAudience']), 201);
     }
 
     public function update(Request $request, Training $training)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'action_name' => 'required|string|max:255',
             'year' => [
                 'required',
                 'integer',
@@ -55,16 +70,36 @@ class TrainingController extends Controller
                 },
             ],
             'status' => 'required|in:active,inactive',
-            'directorate_id' => 'nullable|exists:directorates,id'
+            'directorate_id' => 'nullable|exists:directorates,id',
+            'location_id' => 'nullable|exists:locations,id',
+            'modality_id' => 'nullable|exists:modalities,id',
+            'training_type_id' => 'nullable|exists:training_types,id',
+            'target_audience_id' => 'nullable|exists:target_audiences,id',
+            'start_date' => 'nullable|date',
+            'workload' => 'nullable|string|max:255',
+            'venue' => 'nullable|string|max:255',
+            'strategies' => 'array',
+            'strategies.*' => 'exists:strategies,id',
         ]);
 
         $training->update($validated);
-        return response()->json($training);
+
+        if (isset($validated['strategies'])) {
+            $training->strategies()->sync($validated['strategies']);
+        }
+        
+        \App\Services\LoggerService::log('TRAINING_UPDATE', "Capacitação '{$training->action_name}' atualizada");
+
+        return response()->json($training->load(['directorate', 'location', 'modality', 'strategies', 'trainingType', 'targetAudience']));
     }
 
     public function destroy(Training $training)
     {
+        $name = $training->action_name;
         $training->delete();
+        
+        \App\Services\LoggerService::log('TRAINING_DELETE', "Capacitação '{$name}' excluída");
+
         return response()->json(null, 204);
     }
 }

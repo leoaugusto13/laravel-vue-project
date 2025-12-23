@@ -38,7 +38,7 @@ class CourseController extends Controller
 
         $course = Course::create($validated);
 
-        \App\Services\LoggerService::log('COURSE_CREATE', "Course '{$course->title}' created");
+        \App\Services\LoggerService::log('COURSE_CREATE', "Curso '{$course->title}' criado");
 
         return response()->json($course, 201);
     }
@@ -68,7 +68,7 @@ class CourseController extends Controller
 
         $course->update($validated);
 
-        \App\Services\LoggerService::log('COURSE_UPDATE', "Course '{$course->title}' updated");
+        \App\Services\LoggerService::log('COURSE_UPDATE', "Curso '{$course->title}' atualizado");
 
         return response()->json($course);
     }
@@ -82,7 +82,7 @@ class CourseController extends Controller
         $title = $course->title;
         $course->delete();
 
-        \App\Services\LoggerService::log('COURSE_DELETE', "Course '{$title}' deleted");
+        \App\Services\LoggerService::log('COURSE_DELETE', "Curso '{$title}' excluído");
 
         return response()->noContent();
     }
