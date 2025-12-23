@@ -11,7 +11,7 @@ class TrainingController extends Controller
 {
     public function index()
     {
-        return Training::with(['directorate', 'location', 'modality', 'strategies', 'trainingType', 'targetAudience'])->orderBy('year', 'desc')->get();
+        return Training::with(['directorate', 'location', 'modality', 'strategies', 'trainingType', 'targetAudience', 'cities', 'regionals'])->orderBy('year', 'desc')->get();
     }
 
     public function store(Request $request)
@@ -40,6 +40,11 @@ class TrainingController extends Controller
             'start_date' => 'nullable|date',
             'workload' => 'nullable|string|max:255',
             'venue' => 'nullable|string|max:255',
+            'objective' => 'nullable|string|max:500',
+            'cities' => 'array',
+            'cities.*' => 'exists:cities,id',
+            'regionals' => 'array',
+            'regionals.*' => 'exists:regionals,id',
         ]);
 
         $training = Training::create($validated);
@@ -47,11 +52,19 @@ class TrainingController extends Controller
         if (isset($validated['strategies'])) {
             $training->strategies()->sync($validated['strategies']);
         }
+
+        if (isset($validated['cities'])) {
+            $training->cities()->sync($validated['cities']);
+        }
+
+        if (isset($validated['regionals'])) {
+            $training->regionals()->sync($validated['regionals']);
+        }
         
         \App\Services\LoggerService::log('TRAINING_CREATE', "Capacitação '{$training->action_name}' criada");
 
         // Reload to include relations
-        return response()->json($training->load(['directorate', 'location', 'modality', 'strategies', 'trainingType', 'targetAudience']), 201);
+        return response()->json($training->load(['directorate', 'location', 'modality', 'strategies', 'trainingType', 'targetAudience', 'cities', 'regionals']), 201);
     }
 
     public function update(Request $request, Training $training)
@@ -80,6 +93,11 @@ class TrainingController extends Controller
             'venue' => 'nullable|string|max:255',
             'strategies' => 'array',
             'strategies.*' => 'exists:strategies,id',
+            'objective' => 'nullable|string|max:500',
+            'cities' => 'array',
+            'cities.*' => 'exists:cities,id',
+            'regionals' => 'array',
+            'regionals.*' => 'exists:regionals,id',
         ]);
 
         $training->update($validated);
@@ -87,10 +105,18 @@ class TrainingController extends Controller
         if (isset($validated['strategies'])) {
             $training->strategies()->sync($validated['strategies']);
         }
+
+        if (isset($validated['cities'])) {
+            $training->cities()->sync($validated['cities']);
+        }
+
+        if (isset($validated['regionals'])) {
+            $training->regionals()->sync($validated['regionals']);
+        }
         
         \App\Services\LoggerService::log('TRAINING_UPDATE', "Capacitação '{$training->action_name}' atualizada");
 
-        return response()->json($training->load(['directorate', 'location', 'modality', 'strategies', 'trainingType', 'targetAudience']));
+        return response()->json($training->load(['directorate', 'location', 'modality', 'strategies', 'trainingType', 'targetAudience', 'cities', 'regionals']));
     }
 
     public function destroy(Training $training)

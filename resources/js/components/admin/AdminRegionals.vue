@@ -215,7 +215,13 @@ const saveRegional = async () => {
     alert(isEditing.value ? 'Regional atualizada!' : 'Regional criada com sucesso!');
   } catch (error) {
     console.error('Erro ao salvar:', error);
-    alert('Erro ao salvar a regional. Verifique os dados.');
+    let msg = 'Erro ao salvar a regional.';
+    if (error.response?.data?.errors) {
+        msg = Object.values(error.response.data.errors).flat().join('\n');
+    } else if (error.response?.data?.message) {
+        msg = error.response.data.message;
+    }
+    alert(msg);
   }
 };
 

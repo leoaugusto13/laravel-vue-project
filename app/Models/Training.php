@@ -20,7 +20,8 @@ class Training extends Model
         'target_audience_id',
         'modality_id',
         'start_date',
-        'workload'
+        'workload',
+        'objective',
     ];
 
     public function directorate()
@@ -51,5 +52,15 @@ class Training extends Model
     public function strategies()
     {
         return $this->belongsToMany(Strategy::class, 'strategy_training');
+    }
+
+    public function cities()
+    {
+        return $this->belongsToMany(City::class, 'city_training');
+    }
+
+    public function regionals()
+    {
+        return $this->belongsToMany(Regional::class, 'regional_training');
     }
 }

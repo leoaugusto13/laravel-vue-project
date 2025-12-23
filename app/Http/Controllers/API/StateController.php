@@ -16,7 +16,7 @@ class StateController extends Controller
      */
     public function index()
     {
-        return response()->json(State::all());
+        return response()->json(State::orderBy('uf')->get());
     }
 
     /**

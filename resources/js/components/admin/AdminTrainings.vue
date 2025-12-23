@@ -105,91 +105,65 @@
           <button @click="closeModal" class="close-btn">&times;</button>
         </div>
         <form @submit.prevent="saveTraining" class="modal-body">
-          <div class="form-group">
-            <label>Nome da Ação</label>
-            <input v-model="form.action_name" type="text" required placeholder="Ex: Capacitação 2025" />
-          </div>
-          
+          <!-- Section 1: Basic Info -->
+          <div class="form-section full-width">
+            <h4 class="section-title">Informações Básicas</h4>
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label>Nome da Ação</label>
+                <input v-model="form.action_name" type="text" required placeholder="Ex: Capacitação 2025" />
+              </div>
 
-
-          <div class="form-group">
-            <label>Localização</label>
-            <select v-model="form.location_id">
-              <option value="">Selecione...</option>
-              <option v-for="loc in locations" :key="loc.id" :value="loc.id">
-                {{ loc.name }}
-              </option>
-            </select>
-          </div>
-
-          <div class="form-group" v-if="showVenueField">
-             <label>Localidade (Local específico)</label>
-             <input v-model="form.venue" type="text" placeholder="Ex: Auditório da Escola X, Sala 10..." />
-          </div>
-
-          <div class="form-group">
-            <label>Modalidade</label>
-            <select v-model="form.modality_id" :disabled="!form.location_id">
-              <option value="">Selecione...</option>
-              <option v-for="mod in availableModalities" :key="mod.id" :value="mod.id">
-                {{ mod.description }}
-              </option>
-            </select>
-          </div>
-
-            <div class="form-group">
-              <label>Diretoria / Coordenadoria</label>
-              <select v-model="form.directorate_id" required>
-                <option value="" disabled>Selecione...</option>
-                <option v-for="dir in directorates" :key="dir.id" :value="dir.id">
-                  {{ dir.acronym }}
-                </option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Treinamento</label>
-              <select v-model="form.training_type_id">
-                <option value="">Selecione...</option>
-                <option v-for="type in trainingTypes" :key="type.id" :value="type.id">
-                  {{ type.name }}
-                </option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Público Alvo</label>
-              <select v-model="form.target_audience_id">
-                <option value="">Selecione...</option>
-                <option v-for="target in targetAudiences" :key="target.id" :value="target.id">
-                  {{ target.name }}
-                </option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Estratégias</label>
-              <div class="checkbox-group">
-                <label v-for="strategy in strategies" :key="strategy.id" class="checkbox-item">
-                  <input type="checkbox" :value="strategy.id" v-model="form.strategies" />
-                  <span class="checkbox-label">{{ strategy.description }}</span>
-                </label>
+              <div class="form-group full-width">
+                <label>Objetivo</label>
+                <textarea v-model="form.objective" maxlength="500" rows="2" placeholder="Descreva o objetivo da capacitação..."></textarea>
               </div>
             </div>
+          </div>
 
-            <div class="form-row">
+          <!-- Section 2: Classification & Details -->
+          <div class="form-section">
+            <h4 class="section-title">Classificação & Detalhes</h4>
+            <div class="form-grid">
               <div class="form-group">
-                <label>Data de Início</label>
-                <input v-model="form.start_date" type="date" required>
+                <label>Diretoria / Coordenadoria</label>
+                <select v-model="form.directorate_id" required>
+                  <option value="" disabled>Selecione...</option>
+                  <option v-for="dir in directorates" :key="dir.id" :value="dir.id">
+                    {{ dir.acronym }}
+                  </option>
+                </select>
               </div>
-              <div class="form-group">
-                <label>Carga Horária</label>
-                <input v-model="form.workload" type="text" placeholder="Ex: 40h">
-              </div>
-            </div>
 
-            <div class="form-row">
               <div class="form-group">
+                <label>Treinamento</label>
+                <select v-model="form.training_type_id">
+                  <option value="">Selecione...</option>
+                  <option v-for="type in trainingTypes" :key="type.id" :value="type.id">
+                    {{ type.name }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Público Alvo</label>
+                <select v-model="form.target_audience_id">
+                  <option value="">Selecione...</option>
+                  <option v-for="target in targetAudiences" :key="target.id" :value="target.id">
+                    {{ target.name }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Status</label>
+                <select v-model="form.status">
+                  <option value="active">Ativo</option>
+                  <option value="inactive">Inativo</option>
+                </select>
+              </div>
+
+               <div class="form-group">
                 <label>Ano</label>
                 <select v-model="form.year" required>
                   <option value="" disabled>Selecione...</option>
@@ -198,13 +172,110 @@
                   </option>
                 </select>
               </div>
-            <div class="form-group">
-              <label>Status</label>
-              <select v-model="form.status">
-                <option value="active">Ativo</option>
-                <option value="inactive">Inativo</option>
-              </select>
             </div>
+          </div>
+
+          <!-- Section 3: Location & Schedule -->
+          <div class="form-section">
+             <h4 class="section-title">Localização & Agenda</h4>
+             <div class="form-grid">
+                <div class="form-group">
+                  <label>Localização</label>
+                  <select v-model="form.location_id">
+                    <option value="">Selecione...</option>
+                    <option v-for="loc in locations" :key="loc.id" :value="loc.id">
+                      {{ loc.name }}
+                    </option>
+                  </select>
+                </div>
+
+                <div class="form-group" v-if="showVenueField">
+                   <label>Localidade (Local específico)</label>
+                   <input v-model="form.venue" type="text" placeholder="Ex: Auditório da Escola X..." />
+                </div>
+
+                <div class="form-group">
+                  <label>Modalidade</label>
+                  <select v-model="form.modality_id" :disabled="!form.location_id">
+                    <option value="">Selecione...</option>
+                    <option v-for="mod in availableModalities" :key="mod.id" :value="mod.id">
+                      {{ mod.description }}
+                    </option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Data de Início</label>
+                  <input v-model="form.start_date" type="date" required>
+                </div>
+
+                <div class="form-group">
+                  <label>Carga Horária</label>
+                  <input v-model="form.workload" type="text" placeholder="Ex: 40h">
+                </div>
+             </div>
+          </div>
+
+          <!-- Section 4: Strategies -->
+          <div class="form-section full-width">
+            <h4 class="section-title">Estratégias</h4>
+            <div class="checkbox-group grid-cols-3">
+              <label v-for="strategy in strategies" :key="strategy.id" class="checkbox-item">
+                <input type="checkbox" :value="strategy.id" v-model="form.strategies" />
+                <span class="checkbox-label">{{ strategy.description }}</span>
+              </label>
+            </div>
+          </div>
+
+
+
+
+
+
+          <!-- Section: Regionals Filter -->
+          <div class="form-section full-width" v-if="isRegionalsLocation">
+            <h4 class="section-title">Regionais</h4>
+            <div class="checkbox-group grid-cols-3">
+              <label v-for="regional in regionals" :key="regional.id" class="checkbox-item">
+                <input type="checkbox" :value="regional.id" v-model="form.regionals" />
+                <span class="checkbox-label">{{ regional.name }}</span>
+              </label>
+            </div>
+             <div v-if="regionals.length === 0" class="empty-text">Nenhuma regional cadastrada.</div>
+          </div>
+
+          <!-- Section: States Filter -->
+          <div class="form-section full-width" v-if="isMunicipalitiesLocation">
+            <h4 class="section-title">Estados (Filtrar Municípios)</h4>
+             <div class="checkbox-group states-list">
+              <label v-for="state in states" :key="state.id" class="checkbox-item">
+                <input type="checkbox" :value="state.id" v-model="selectedStates" @change="handleStateChange" />
+                <span class="checkbox-label">{{ state.uf }}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Section 5: Municipalities -->
+          <div class="form-section full-width" v-if="isMunicipalitiesLocation">
+            <div class="section-header-actions">
+                <h4 class="section-title">Municípios Abrangidos</h4>
+                <div class="section-actions">
+                    <button type="button" class="btn-text" @click="selectAllCities">Marcar Todos</button>
+                    <button type="button" class="btn-text" @click="deselectAllCities">Desmarcar Todos</button>
+                </div>
+            </div>
+            
+            <div class="city-search">
+                <input type="text" v-model="citySearch" placeholder="Buscar município..." class="search-input">
+            </div>
+
+            <div class="checkbox-group grid-cols-3 cities-list">
+              <label v-for="city in filteredCities" :key="city.id" class="checkbox-item">
+                <input type="checkbox" :value="city.id" v-model="form.cities" />
+                <span class="checkbox-label">{{ city.name }}</span>
+              </label>
+            </div>
+             <div v-if="cities.length === 0" class="empty-text">Nenhum município carregado.</div>
           </div>
 
           <div class="modal-footer">
@@ -220,7 +291,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, reactive } from 'vue';
+import { ref, onMounted, computed, reactive, watch } from 'vue';
 import axios from 'axios';
 
 const trainings = ref([]);
@@ -228,27 +299,11 @@ const activeTrainings = computed(() => trainings.value.filter(t => t.status === 
 const directorates = ref([]);
 const locations = ref([]);
 const years = ref([]);
+const states = ref([]);
+const regionals = ref([]);
 const trainingTypes = ref([]);
 const targetAudiences = ref([]);
 const strategies = ref([]);
-const availableModalities = computed(() => {
-    if (!form.location_id) return [];
-    const location = locations.value.find(l => l.id === form.location_id);
-    return location ? location.modalities.filter(m => m.status === 'active' || (form.modality_id && m.id === form.modality_id)) : [];
-});
-
-const showVenueField = computed(() => {
-    return !!form.location_id;
-});
-
-const availableYears = computed(() => {
-    // If editing, include the current year even if closed (to allow saving other changes)
-    if (isEditing.value) {
-        return years.value.filter(y => !y.is_closed || y.year == form.year);
-    }
-    // If creating, only show open years
-    return years.value.filter(y => !y.is_closed);
-});
 const showModal = ref(false);
 const isEditing = ref(false);
 const loading = ref(false);
@@ -266,8 +321,135 @@ const form = reactive({
   target_audience_id: '',
   start_date: '',
   workload: '',
-  strategies: []
+  objective: '',
+  strategies: [],
+
+  cities: [],
+  regionals: []
 });
+
+const availableModalities = computed(() => {
+    if (!form.location_id) return [];
+    const location = locations.value.find(l => l.id === form.location_id);
+    return location ? location.modalities.filter(m => m.status === 'active' || (form.modality_id && m.id === form.modality_id)) : [];
+});
+
+
+
+const cities = ref([]);
+const selectedStates = ref([]);
+const citySearch = ref('');
+const filteredCities = computed(() => {
+    if (!citySearch.value) return cities.value;
+    const search = citySearch.value.toLowerCase();
+    return cities.value.filter(c => c.name.toLowerCase().includes(search));
+});
+
+const showVenueField = computed(() => {
+    return !!form.location_id;
+});
+
+const isMunicipalitiesLocation = computed(() => {
+    if (!form.location_id) return false;
+    // Ensure loosely typed comparison for IDs (string vs number)
+    const location = locations.value.find(l => l.id == form.location_id);
+    
+    if (location) {
+        // Normalize string to remove accents and check for "municip" base
+        const normalizedName = location.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return normalizedName.includes('municip');
+    }
+    return false;
+});
+
+const isRegionalsLocation = computed(() => {
+    if (!form.location_id) return false;
+    const location = locations.value.find(l => l.id == form.location_id);
+    if (location) {
+        const normalizedName = location.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return normalizedName.includes('regionais') || normalizedName.includes('regional');
+    }
+    return false;
+});
+
+// Watch for location changes to clear cities if needed
+watch(() => form.location_id, (newVal) => {
+    if (!isMunicipalitiesLocation.value) {
+        selectedStates.value = [];
+        form.cities = [];
+        cities.value = [];
+    }
+    if (!isRegionalsLocation.value) {
+        form.regionals = [];
+    }
+});
+
+const availableYears = computed(() => {
+    // If editing, include the current year even if closed (to allow saving other changes)
+    if (isEditing.value) {
+        return years.value.filter(y => !y.is_closed || y.year == form.year);
+    }
+    // If creating, only show open years
+    return years.value.filter(y => !y.is_closed);
+});
+
+
+const loadStates = async () => {
+    try {
+        const response = await axios.get('/api/admin/states', {
+             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        states.value = response.data;
+    } catch (error) {
+        console.error('Error loading states:', error);
+    }
+};
+
+const loadRegionals = async () => {
+    try {
+        const response = await axios.get('/api/admin/regionals', {
+             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        regionals.value = response.data;
+    } catch (error) {
+        console.error('Error loading regionals:', error);
+    }
+};
+
+const loadCities = async (stateIds = []) => {
+  try {
+    const params = {};
+    if (stateIds.length > 0) {
+        params.state_id = stateIds;
+    } else {
+        cities.value = []; // Don't load cities if no state is selected to improve performance
+        return;
+    }
+
+    const response = await axios.get('/api/admin/cities', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      params: params
+    });
+    cities.value = response.data;
+  } catch (error) {
+    console.error('Error loading cities:', error);
+  }
+};
+
+const handleStateChange = () => {
+    loadCities(selectedStates.value);
+};
+
+const selectAllCities = () => {
+    const idsToAdd = filteredCities.value.map(c => c.id);
+    const newCities = new Set([...form.cities, ...idsToAdd]);
+    form.cities = Array.from(newCities);
+};
+
+const deselectAllCities = () => {
+   const idsToRemove = new Set(filteredCities.value.map(c => c.id));
+   form.cities = form.cities.filter(id => !idsToRemove.has(id));
+};
 
 const loadDirectorates = async () => {
   try {
@@ -297,7 +479,8 @@ const loadLocations = async () => {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     locations.value = response.data;
-    locations.value = response.data;
+
+
   } catch (error) {
     console.error('Error loading locations:', error);
   }
@@ -354,8 +537,7 @@ const openModal = (training = null) => {
     currentId.value = training.id;
     form.action_name = training.action_name;
     form.year = training.year;
-    form.status = training.status;
-    form.status = training.status;
+
     form.status = training.status;
     form.directorate_id = training.directorate_id || '';
     form.location_id = training.location_id || '';
@@ -365,7 +547,20 @@ const openModal = (training = null) => {
     form.target_audience_id = training.target_audience_id || '';
     form.start_date = training.start_date || '';
     form.workload = training.workload || '';
+    form.objective = training.objective || '';
     form.strategies = training.strategies ? training.strategies.map(s => s.id) : [];
+    form.cities = training.cities ? training.cities.map(c => c.id) : [];
+    form.regionals = training.regionals ? training.regionals.map(r => r.id) : [];
+
+    // Extract unique state IDs from the training's cities to pre-select states
+    if (training.cities && training.cities.length > 0) {
+        const stateIds = [...new Set(training.cities.map(c => c.state_id))];
+        selectedStates.value = stateIds;
+        loadCities(stateIds);
+    } else {
+        selectedStates.value = [];
+        cities.value = [];
+    }
   } else {
     currentId.value = null;
     form.action_name = '';
@@ -379,7 +574,13 @@ const openModal = (training = null) => {
     form.target_audience_id = '';
     form.start_date = '';
     form.workload = '';
+    form.objective = '';
+
     form.strategies = [];
+    form.cities = [];
+    form.regionals = [];
+    selectedStates.value = [];
+    cities.value = [];
   }
   showModal.value = true;
 };
@@ -423,14 +624,16 @@ const deleteTraining = async (training) => {
 
 onMounted(() => {
   loadTrainings();
-  loadTrainings();
   loadDirectorates();
-  loadLocations();
   loadLocations();
   loadYears();
   loadTrainingTypes();
   loadTargetAudiences();
+
   loadStrategies();
+  loadStates();
+  loadRegionals();
+  // loadCities(); // Initial load removed, waiting for state selection
 });
 
 const formatDate = (dateString) => {
@@ -641,41 +844,17 @@ const formatDate = (dateString) => {
   backdrop-filter: blur(4px);
 }
 
-.checkbox-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-height: 150px;
-  overflow-y: auto;
-  padding: 0.5rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  background: #f8fafc;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9em;
-  color: #334155;
-  cursor: pointer;
-}
-
-.checkbox-item input[type="checkbox"] {
-  width: 1rem;
-  height: 1rem;
-  border-radius: 4px;
-}
-
-
 .modal {
   background: white;
   border-radius: 24px;
-  width: 100%;
-  max-width: 500px;
+  width: 95%;
+  max-width: 900px;
+  max-height: 90vh;
+  margin: 1rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   animation: modalSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes modalSlide {
@@ -692,7 +871,7 @@ const formatDate = (dateString) => {
 }
 
 .modal-header h3 {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #1e293b;
   margin: 0;
@@ -711,9 +890,44 @@ const formatDate = (dateString) => {
 
 .modal-body {
   padding: 1.5rem;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 2rem;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Remove specific full-width hack as now everything is stacked */
+.form-section.full-width {
+  grid-column: auto;
+}
+
+.section-title {
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  font-weight: 700;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns for better density */
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .form-group {
@@ -722,11 +936,38 @@ const formatDate = (dateString) => {
   gap: 0.5rem;
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+.form-group.full-width {
+  grid-column: 1 / -1;
 }
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
+}
+
+.checkbox-group.grid-cols-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    max-height: none; /* Let it expand or control height if needed */
+}
+
+.checkbox-group.states-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 0.5rem;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+/* Rest of form styles */
 
 .form-group label {
   font-size: 0.875rem;
@@ -743,6 +984,7 @@ const formatDate = (dateString) => {
   font-size: 0.95rem;
   transition: all 0.2s;
   color: #1e293b;
+  width: 100%;
 }
 
 .form-group input:focus,
@@ -753,13 +995,58 @@ const formatDate = (dateString) => {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
+.section-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.section-header-actions .section-title {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.section-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-text {
+    background: none;
+    border: none;
+    color: #6366f1;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-text:hover {
+    text-decoration: underline;
+}
+
+.city-search {
+    margin-bottom: 1rem;
+}
+
+.cities-list {
+    max-height: 200px;
+}
+
+
+
 .modal-footer {
   padding: 1.5rem;
   background: #f8fafc;
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  border-radius: 0 0 24px 24px;
+  border-top: 1px solid #f1f5f9;
+  grid-column: 1 / -1; /* Make footer span full width */
+  margin-top: 1rem;
 }
 
 .empty-state {
@@ -767,4 +1054,14 @@ const formatDate = (dateString) => {
   padding: 3rem;
   color: #64748b;
 }
+
+@media (max-width: 768px) {
+  .modal-body {
+    grid-template-columns: 1fr;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>

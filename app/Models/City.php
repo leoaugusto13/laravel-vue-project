@@ -16,4 +16,9 @@ class City extends Model
     {
         return $this->belongsTo(State::class);
     }
+
+    public function trainings()
+    {
+        return $this->belongsToMany(Training::class, 'city_training');
+    }
 }

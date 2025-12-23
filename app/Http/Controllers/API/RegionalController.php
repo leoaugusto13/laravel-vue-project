@@ -16,7 +16,7 @@ class RegionalController extends Controller
      */
     public function index()
     {
-        return response()->json(Regional::all());
+        return response()->json(Regional::orderBy('name')->get());
     }
 
     /**
@@ -25,9 +25,11 @@ class RegionalController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:regionals,name',
             'state_id' => 'required|exists:states,id',
             'active' => 'boolean'
+        ], [
+            'name.unique' => 'A regional já está cadastrada.'
         ]);
 
         $regional = Regional::create($validated);
@@ -56,9 +58,11 @@ class RegionalController extends Controller
     public function update(Request $request, Regional $regional)
     {
         $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
+            'name' => 'sometimes|required|string|max:255|unique:regionals,name,' . $regional->id,
             'state_id' => 'sometimes|required|exists:states,id',
             'active' => 'boolean'
+        ], [
+            'name.unique' => 'A regional já está cadastrada.'
         ]);
 
         $oldName = $regional->name;

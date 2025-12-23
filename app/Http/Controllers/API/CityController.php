@@ -14,9 +14,19 @@ class CityController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(City::all());
+        $query = City::query();
+
+        if ($request->has('state_id')) {
+            $stateIds = $request->input('state_id');
+            if (!is_array($stateIds)) {
+                $stateIds = explode(',', $stateIds);
+            }
+            $query->whereIn('state_id', $stateIds);
+        }
+
+        return response()->json($query->get());
     }
 
     /**
