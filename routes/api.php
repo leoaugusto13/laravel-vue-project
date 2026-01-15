@@ -78,8 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('regionals', App\Http\Controllers\API\RegionalController::class);
 
         // Registration Forms
-        Route::get('trainings/{training}/registration-form', [App\Http\Controllers\Admin\RegistrationFormController::class, 'show']);
-        Route::post('trainings/{training}/registration-form', [App\Http\Controllers\Admin\RegistrationFormController::class, 'store']);
+        Route::get('trainings/{trainingId}/registration-form', [App\Http\Controllers\Admin\RegistrationFormController::class, 'show']);
+        Route::post('trainings/{trainingId}/registration-form', [App\Http\Controllers\Admin\RegistrationFormController::class, 'store']);
     });
 
     // Public/User Routes
