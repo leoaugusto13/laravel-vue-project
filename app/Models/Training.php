@@ -63,4 +63,8 @@ class Training extends Model
     {
         return $this->belongsToMany(Regional::class, 'regional_training');
     }
+    public function registrationForm()
+    {
+        return $this->hasOne(RegistrationForm::class);
+    }
 }

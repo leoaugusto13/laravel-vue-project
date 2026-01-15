@@ -73,8 +73,13 @@ Route::middleware('auth:sanctum')->group(function () {
         // States
         Route::apiResource('states', App\Http\Controllers\API\StateController::class);
 
+
         // Regionals
         Route::apiResource('regionals', App\Http\Controllers\API\RegionalController::class);
+
+        // Registration Forms
+        Route::get('trainings/{training}/registration-form', [App\Http\Controllers\Admin\RegistrationFormController::class, 'show']);
+        Route::post('trainings/{training}/registration-form', [App\Http\Controllers\Admin\RegistrationFormController::class, 'store']);
     });
 
     // Public/User Routes
@@ -88,3 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// Public Registration Form Routes
+Route::get('public/trainings/{training}/registration-form', [App\Http\Controllers\Public\RegistrationController::class, 'show']);
+Route::post('public/trainings/{training}/register', [App\Http\Controllers\Public\RegistrationController::class, 'submit']);

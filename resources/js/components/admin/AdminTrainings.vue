@@ -78,6 +78,9 @@
               </td>
               <td>
                 <div class="actions">
+                  <router-link :to="{ name: 'admin-training-registration-form', params: { id: training.id } }" class="btn-icon form" title="Configurar Ficha">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                  </router-link>
                   <button @click="openModal(training)" class="btn-icon edit" title="Editar">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                   </button>
@@ -781,19 +784,32 @@ const formatDate = (dateString) => {
 }
 
 .btn-icon {
-  padding: 0.5rem;
+  padding: 0.6rem;
   border-radius: 8px;
-  border: none;
-  background: transparent;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-icon.edit { color: #3b82f6; }
-.btn-icon.edit:hover { background: #eff6ff; }
+.btn-icon:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
 
-.btn-icon.delete { color: #ef4444; }
-.btn-icon.delete:hover { background: #fef2f2; }
+.btn-icon.edit { color: #3b82f6; background: #eff6ff; border-color: #bfdbfe; }
+.btn-icon.edit:hover { background: #dbeafe; }
+
+.btn-icon.delete { color: #ef4444; background: #fef2f2; border-color: #fecaca; }
+.btn-icon.delete:hover { background: #fee2e2; }
+
+.btn-icon.form { color: #8b5cf6; background: #f5f3ff; border-color: #ddd6fe; }
+.btn-icon.form:hover { background: #ede9fe; }
+
+
 
 /* Buttons */
 .btn-primary {

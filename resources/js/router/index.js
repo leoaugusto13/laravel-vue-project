@@ -20,6 +20,8 @@ import AdminStates from '../components/admin/AdminStates.vue';
 import AdminRegionals from '../components/admin/AdminRegionals.vue';
 import AdminYears from '../components/admin/AdminYears.vue';
 import AdminLocations from '../components/admin/AdminLocations.vue'; // Imported
+import RegistrationFormBuilder from '../components/Admin/Training/RegistrationFormBuilder.vue';
+import TrainingRegistration from '../views/Public/TrainingRegistration.vue';
 
 const routes = [
     {
@@ -159,6 +161,17 @@ const routes = [
                 next('/login');
             }
         }
+    },
+    {
+        path: '/admin/trainings/:id/registration-form',
+        name: 'admin-training-registration-form',
+        component: RegistrationFormBuilder,
+        props: route => ({ trainingId: route.params.id })
+    },
+    {
+        path: '/public/registration/:id',
+        name: 'public-registration',
+        component: TrainingRegistration
     },
 ];
 
